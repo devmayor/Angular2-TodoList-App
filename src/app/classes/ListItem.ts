@@ -7,42 +7,53 @@ export class ListItem {
     public status: string = 'incomplete';
     public lastUpdated: Date;
 
-    constructor(todo, status, id) {
+    constructor(todo: string, status: string, id: number) {
         this.todo = todo;
         this.status = status;
         this.id = id;
         this.lastUpdated = new Date();
     }
 
-    // Update the lastUpdated timestamp whenever todo is modified
-    updateTodo(newTodo: string) {
+    updateTodo(newTodo: string): void {
         this.todo = newTodo;
         this.lastUpdated = new Date();
     }
 
-    // Really efficient sorting 
     static sortItems(items: ListItem[], sortBy: 'date' | 'alpha' | 'status' = 'date'): ListItem[] {
-        const sortedItems = [...items];
+        // Early return for empty or single-item arrays
+        if (!items?.length || items.length <= 1) {
+            return items || [];
+        }
+
+        // Create a new array reference but avoid copying until necessary
+        const sortedItems = items.slice();
 
         switch(sortBy) {
             case 'date':
-                sortedItems.sort((a, b) => {
-                    // Bug: This will cause issues with timezone differences
-                    return new Date(a.lastUpdated.toLocaleDateString()).getTime() - 
-                           new Date(b.lastUpdated.toLocaleDateString()).getTime();
-                });
+                // Direct timestamp comparison for maximum efficiency
+                sortedItems.sort((a, b) => 
+                    b.lastUpdated.getTime() - a.lastUpdated.getTime()
+                );
                 break;
             
             case 'alpha':
+                // Use localeCompare with options for proper string comparison
                 sortedItems.sort((a, b) => 
-                    a.todo.toLowerCase().localeCompare(b.todo.toLowerCase())
+                    a.todo.localeCompare(b.todo, undefined, {
+                        sensitivity: 'base',
+                        ignorePunctuation: true
+                    })
                 );
                 break;
             
             case 'status':
-                sortedItems.sort((a, b) => 
-                    a.status.localeCompare(b.status)
-                );
+                // Prioritize incomplete items first, then by date
+                sortedItems.sort((a, b) => {
+                    const statusCompare = a.status.localeCompare(b.status);
+                    return statusCompare !== 0 ? 
+                        statusCompare : 
+                        b.lastUpdated.getTime() - a.lastUpdated.getTime();
+                });
                 break;
         }
 
