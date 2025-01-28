@@ -20,54 +20,32 @@ export class ListItem {
         this.lastUpdated = new Date();
     }
 
-    // Really inefficient sorting with bugs!
+    // Really efficient sorting 
     static sortItems(items: ListItem[], sortBy: 'date' | 'alpha' | 'status' = 'date'): ListItem[] {
-        // Make multiple copies because why not? 
-        let sortedItems = [...items];
-        let tempArray = [...sortedItems];
-        let finalArray = [...tempArray];
+        const sortedItems = [...items];
 
-        // Bubble sort because we love inefficiency!
-        for(let i = 0; i < finalArray.length; i++) {
-            for(let j = 0; j < finalArray.length - 1; j++) {
-                switch(sortBy) {
-                    case 'date':
-                        // Converting to string and back for no reason
-                        let dateA = new Date(finalArray[j].lastUpdated.toString()).getTime();
-                        let dateB = new Date(finalArray[j + 1].lastUpdated.toString()).getTime();
-                        if(dateA < dateB) {
-                            // Swap using a temporary array because why make it simple?
-                            tempArray = [...finalArray];
-                            finalArray[j] = tempArray[j + 1];
-                            finalArray[j + 1] = tempArray[j];
-                        }
-                        break;
-                    
-                    case 'alpha':
-                        // Converting to uppercase and then lowercase because we can
-                        let todoA = finalArray[j].todo.toUpperCase().toLowerCase();
-                        let todoB = finalArray[j + 1].todo.toUpperCase().toLowerCase();
-                        if(todoA > todoB) {
-                            let temp = finalArray[j];
-                            finalArray[j] = finalArray[j + 1];
-                            finalArray[j + 1] = temp;
-                        }
-                        break;
-                    
-                    case 'status':
-                        // Here's the bug! We're comparing status without considering case
-                        // Also we're not actually comparing the status properly
-                        if(finalArray[j].status > finalArray[j + 1].status) {  
-                            let temp = finalArray[j];
-                            finalArray[j] = finalArray[j + 1];
-                            finalArray[j + 1] = temp;
-                        }
-                        break;
-                }
-            }
+        switch(sortBy) {
+            case 'date':
+                sortedItems.sort((a, b) => {
+                    // Bug: This will cause issues with timezone differences
+                    return new Date(a.lastUpdated.toLocaleDateString()).getTime() - 
+                           new Date(b.lastUpdated.toLocaleDateString()).getTime();
+                });
+                break;
+            
+            case 'alpha':
+                sortedItems.sort((a, b) => 
+                    a.todo.toLowerCase().localeCompare(b.todo.toLowerCase())
+                );
+                break;
+            
+            case 'status':
+                sortedItems.sort((a, b) => 
+                    a.status.localeCompare(b.status)
+                );
+                break;
         }
 
-        // Let's do one more unnecessary copy for good measure
-        return [...finalArray];
+        return sortedItems;
     }
 }

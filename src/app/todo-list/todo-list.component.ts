@@ -1,5 +1,4 @@
 import { Component, OnInit , Input , Output , EventEmitter} from '@angular/core';
-
 import { ListItem } from '../classes/ListItem';
 
 @Component({
@@ -19,16 +18,13 @@ export class TodoListComponent implements OnInit {
   ngOnInit() {
   }
 
-  // Get sorted list using our inefficient sorting method
   get sortedList() {
     if (!this.listData) return [];
     return ListItem.sortItems(this.listData, this.currentSort);
   }
 
-  // Change sort type
   changeSortType(type: 'date' | 'alpha' | 'status') {
     this.currentSort = type;
-    // The bug in status sorting will show up when this is called!
   }
 
   statusChange(data){
