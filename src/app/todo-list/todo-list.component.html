@@ -1,8 +1,15 @@
 <h3>Todo List</h3>
+
+<div class="sort-buttons">
+  <button [class.active]="currentSort === 'date'" (click)="changeSortType('date')">Sort by Date</button>
+  <button [class.active]="currentSort === 'alpha'" (click)="changeSortType('alpha')">Sort Alphabetically</button>
+  <button [class.active]="currentSort === 'status'" (click)="changeSortType('status')">Sort by Status</button>
+</div>
+
 <ul id="todoList">
-<app-list-item *ngFor="let listItem of listData"
-               [listItemCon]="listItem"
-               (itemStatusChanged)="statusChange($event)"
-                (deleteItem)="deleteItem($event)"
-        ></app-list-item>
+  <app-list-item *ngFor="let listItem of sortedList"
+                 [listItemCon]="listItem"
+                 (itemStatusChanged)="statusChange($event)"
+                 (deleteItem)="deleteItem($event)"
+  ></app-list-item>
 </ul>
